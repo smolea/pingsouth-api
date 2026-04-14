@@ -9,12 +9,8 @@ const ALLOWED_ORIGINS = [
 
 function getAllowedOrigin(req) {
   const origin = req.headers.origin || '';
-
   if (ALLOWED_ORIGINS.includes(origin)) return origin;
-
-  // allow any Replit preview domain
   if (/\.replit\.dev$/.test(origin)) return origin;
-
   return null;
 }
 
@@ -31,12 +27,10 @@ export default async function handler(req, res) {
     setCorsHeaders(res, origin);
   }
 
-  // ✅ handle preflight FIRST
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // ✅ only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -44,26 +38,17 @@ export default async function handler(req, res) {
   try {
     const { name, email, message } = req.body;
 
-    if (!name || !email || !message) {
-      return res.status(400).json({ error: 'Missing fields' });
-    }
-
     await resend.emails.send({
-      from: 'PingSouth <onboarding@resend.dev>',
-      to: ['info@pingsouth.com'], // <-- your real inbox
-      subject: 'New Demo Request',
-      html: `
-        <h2>New Contact Submission</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p>${message}</p>
-      `,
+      from: 'PingSouth <noreply@pingsouth.net>',
+      to: ['sarahmolea@gmail.com'],
+      subject: `New Demo Request from ${name}`,
+      text: message,
+      replyTo: email,
     });
 
     return res.status(200).json({ success: true });
-
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Email failed' });
+    console.error('Email send error:', error);
+    return res.status(500).json({ error: 'Failed to send message' });
   }
 }
