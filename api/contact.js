@@ -3,17 +3,17 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
-  // ✅ Always set CORS headers FIRST
+  // ✅ Allow your domain
   res.setHeader('Access-Control-Allow-Origin', 'https://pingsouth.net');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // ✅ Handle preflight request
+  // ✅ Handle preflight FIRST and EXIT
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // ❌ Only allow POST after this
+  // ✅ Only allow POST after preflight
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -34,11 +34,10 @@ export default async function handler(req, res) {
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p>${message}</p>
-      `,
+      `
     });
 
     return res.status(200).json({ success: true });
-
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Email failed' });
