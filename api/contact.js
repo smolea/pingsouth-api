@@ -3,26 +3,26 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
-  // ✅ Allow your domain
   const allowedOrigins = [
-  'https://pingsouth.net',
-  'https://www.pingsouth.net'
-];
+    'https://pingsouth.net',
+    'https://www.pingsouth.net'
+  ];
 
-const origin = req.headers.origin;
+  const origin = req.headers.origin;
 
-if (allowedOrigins.includes(origin)) {
-  res.setHeader('Access-Control-Allow-Origin', origin);
-}
+  // ✅ ALWAYS set headers first
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // ✅ Handle preflight FIRST and EXIT
+  // ✅ CRITICAL: handle OPTIONS AFTER headers are set
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // ✅ Only allow POST after preflight
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -47,6 +47,7 @@ if (allowedOrigins.includes(origin)) {
     });
 
     return res.status(200).json({ success: true });
+
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: 'Email failed' });
