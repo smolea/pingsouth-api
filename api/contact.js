@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   try {
     await resend.emails.send({
       from: 'Website <onboarding@resend.dev>',
-      to: 'info@pingsouth.com',
+      to: 'sarahmolea@gmail.com',
       subject: 'New Contact Form Submission',
       html: `
         <h2>New Contact Submission</h2>
