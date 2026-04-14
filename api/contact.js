@@ -15,14 +15,12 @@ function getCorsOrigin(req) {
 module.exports = async function handler(req, res) {
   const origin = getCorsOrigin(req);
 
-  // ✅ Always set CORS headers if allowed
-  if (origin) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  }
+  // ✅ ALWAYS set headers (even if origin null)
+  res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // ✅ Handle preflight
+  // ✅ Preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -35,23 +33,17 @@ module.exports = async function handler(req, res) {
   try {
     const { name, email, message } = req.body;
 
-    const response = await resend.emails.send({
-      from: 'PingSouth <onboarding@resend.dev>', // test sender
-      to: ['sarahmolea@gmail.com'], // your inbox
+    await resend.emails.send({
+      from: 'PingSouth <onboarding@resend.dev>', // safe default
+      to: ['sarahmolea@gmail.com'],
       subject: `New Demo Request from ${name}`,
       text: message,
       replyTo: email,
     });
 
-    console.log('RESEND RESPONSE:', response);
-
-    return res.status(200).json({
-      success: true,
-      response,
-    });
-
+    return res.status(200).json({ success: true });
   } catch (error) {
-    console.error('❌ Email send error:', error);
+    console.error('Email send error:', error);
 
     return res.status(500).json({
       error: 'Failed to send message',
