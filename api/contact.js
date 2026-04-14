@@ -4,7 +4,16 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
   // ✅ Allow your domain
-  res.setHeader('Access-Control-Allow-Origin', 'https://pingsouth.net');
+  const allowedOrigins = [
+  'https://pingsouth.net',
+  'https://www.pingsouth.net'
+];
+
+const origin = req.headers.origin;
+
+if (allowedOrigins.includes(origin)) {
+  res.setHeader('Access-Control-Allow-Origin', origin);
+}
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
