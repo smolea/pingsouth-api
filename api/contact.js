@@ -35,7 +35,7 @@ module.exports = async function handler(req, res) {
 
     await resend.emails.send({
       from: 'PingSouth <info@pingsouth.com>', // safe default
-      to: ['sarahmolea@gmail.com'],
+      to: ['info@pingsouth.com'],
       subject: `New Demo Request from ${name}`,
       text: message,
       replyTo: email,
